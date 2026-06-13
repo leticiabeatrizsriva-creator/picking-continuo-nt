@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Picking Contínuo — Guia de Antecipação Cluster NT + NE</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F6F2;--surface:#fff;--surface2:#F0EEE8;--border:#E2DED4;
+  --text:#1A1917;--text2:#5C5A55;--text3:#9A9791;
+  --green:#1A6B3A;--green-bg:#EAF4EE;--green-dark:#0F4A28;
+  --red:#C0392B;--red-bg:#FDF0EE;
+  --amber:#9A5C0A;--amber-bg:#FDF5E6;
+  --purple:#4A3A8C;--purple-bg:#F0EEFF;
+  --blue:#1A4A8C;--blue-bg:#EEF3FF;
+  --mono:'IBM Plex Mono',monospace;--sans:'Inter',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased}
+nav{position:sticky;top:0;z-index:100;background:rgba(247,246,242,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 2rem}
+.nav-brand{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--text2);letter-spacing:.06em;text-transform:uppercase}
+.nav-links{display:flex;gap:1.5rem;list-style:none}
+.nav-links a{font-size:13px;color:var(--text2);text-decoration:none}
+.nav-links a:hover{color:var(--text)}
+.sec{padding:4rem 0;border-bottom:1px solid var(--border)}
+.wrap{max-width:880px;margin:0 auto;padding:0 2rem}
+.eyebrow{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--green);background:var(--green-bg);display:inline-block;padding:4px 12px;border-radius:2px;margin-bottom:1.25rem}
+.sec-title{font-size:26px;font-weight:700;letter-spacing:-.02em;margin-bottom:.75rem}
+.sec-sub{font-size:15px;color:var(--text2);line-height:1.75;max-width:660px;margin-bottom:2rem}
+.hero{padding:5rem 0 4rem;border-bottom:1px solid var(--border)}
+.hero h1{font-size:clamp(32px,5vw,52px);font-weight:700;line-height:1.1;letter-spacing:-.03em;margin-bottom:1.25rem}
+.hero h1 em{font-style:normal;color:var(--text3)}
+.hero-sub{font-size:17px;color:var(--text2);max-width:580px;line-height:1.75;margin-bottom:2.5rem}
+.meta-row{display:flex;gap:2rem;flex-wrap:wrap}
+.meta-item{display:flex;flex-direction:column;gap:2px}
+.meta-label{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3)}
+.meta-value{font-size:13px;font-weight:500;color:var(--text2)}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:1.5rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.25rem 1.5rem}
+.card-icon{font-size:22px;margin-bottom:10px}
+.card-title{font-size:14px;font-weight:600;margin-bottom:6px}
+.card-desc{font-size:13px;color:var(--text2);line-height:1.6}
+.algo-flow{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin:2rem 0;background:var(--border);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.algo-stage{background:var(--surface);padding:1.5rem}
+.algo-stage+.algo-stage{border-left:1px solid var(--border)}
+.algo-num{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
+.algo-name{font-size:15px;font-weight:700;margin-bottom:10px}
+.algo-tag{font-family:var(--mono);font-size:10px;font-weight:500;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:12px}
+.t-bl{background:#EEF3FF;color:#1A4A8C}
+.t-por{background:var(--amber-bg);color:var(--amber)}
+.t-ass{background:var(--green-bg);color:var(--green)}
+.algo-list{list-style:none;display:flex;flex-direction:column;gap:6px}
+.algo-list li{font-size:12px;color:var(--text2);line-height:1.5;padding-left:14px;position:relative}
+.algo-list li::before{content:'·';position:absolute;left:0;color:var(--text3)}
+.algo-note{background:var(--surface2);border-radius:6px;padding:10px 12px;margin-top:12px;font-size:12px;color:var(--text2);line-height:1.5;border-left:2px solid var(--amber)}
+.params-tbl{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:13px}
+.params-tbl th{text-align:left;padding:10px 16px;background:var(--surface2);border-bottom:1px solid var(--border);font-weight:600;font-size:12px}
+.params-tbl td{padding:12px 16px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;line-height:1.6}
+.params-tbl tr:last-child td{border-bottom:none}
+.bdg{font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:3px;font-weight:500;display:inline-block}
+.bdg-r{background:var(--red-bg);color:var(--red)}
+.bdg-a{background:var(--amber-bg);color:var(--amber)}
+.bdg-p{background:var(--purple-bg);color:var(--purple)}
+.callout{background:var(--blue-bg);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin:1.5rem 0;font-size:13px;color:var(--text2);line-height:1.6}
+.callout strong{color:var(--blue)}
+.quiz-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.qpbar{height:4px;background:var(--surface2)}
+.qpfill{height:4px;background:var(--green);transition:width .4s}
+.qinner{padding:2rem}
+.qcnt{font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:.06em;margin-bottom:1.25rem}
+.qq{font-size:18px;font-weight:600;line-height:1.4;margin-bottom:1.75rem}
+.qopts{display:flex;flex-direction:column;gap:10px}
+.qopt{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:1rem 1.25rem;font-size:14px;color:var(--text);cursor:pointer;text-align:left;transition:border-color .15s,background .15s;line-height:1.5;font-family:var(--sans)}
+.qopt:hover{border-color:var(--green);background:var(--green-bg)}
+.qopt.correct{border-color:var(--green);background:var(--green-bg);color:var(--green-dark);font-weight:500}
+.qopt.wrong{border-color:var(--red);background:var(--red-bg);color:var(--red)}
+.qopt:disabled{cursor:default}
+.qfb{margin-top:1.25rem;padding:1rem 1.25rem;border-radius:8px;font-size:14px;line-height:1.6;display:none}
+.qfb.show{display:block}
+.qfb.ok{background:var(--green-bg);color:var(--green-dark);border-left:3px solid var(--green)}
+.qfb.nok{background:var(--red-bg);color:var(--red);border-left:3px solid var(--red)}
+.qnxt{margin-top:1.5rem;background:var(--green);color:#fff;border:none;border-radius:8px;padding:.75rem 1.5rem;font-size:14px;font-weight:600;cursor:pointer;display:none;font-family:var(--sans)}
+.qnxt:hover{background:var(--green-dark)}
+.qres{padding:2.5rem;text-align:center;display:none}
+.qscore{font-size:52px;font-weight:700;color:var(--green);line-height:1}
+.qres-lbl{font-size:16px;color:var(--text2);margin:.5rem 0 1.5rem}
+.qres-msg{font-size:14px;color:var(--text2);line-height:1.7;max-width:480px;margin:0 auto 1.5rem}
+.qrestart{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.75rem 1.5rem;font-size:14px;font-weight:500;cursor:pointer;font-family:var(--sans);color:var(--text)}
+.ch-list{display:flex;flex-direction:column;gap:10px}
+.ch-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.25rem 1.5rem;display:grid;grid-template-columns:40px 1fr;gap:1rem;align-items:start}
+.ch-dot-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:2px}
+.ch-dot{width:10px;height:10px;border-radius:50%}
+.ch-dot.hi{background:var(--red)}
+.ch-dot.md{background:var(--amber)}
+.ch-dot.lo{background:var(--text3)}
+.ch-lvl{font-family:var(--mono);font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--text3);writing-mode:vertical-lr;transform:rotate(180deg)}
+.ch-title{font-size:14px;font-weight:600;margin-bottom:6px}
+.ch-desc{font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:6px}
+.ch-src{font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:4px}
+.ch-tag{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:500;padding:3px 10px;border-radius:3px;margin-right:4px}
+.t-hi{background:var(--red-bg);color:var(--red)}
+.t-md{background:var(--amber-bg);color:var(--amber)}
+.t-lo{background:var(--surface2);color:var(--text3)}
+.pw-filters{display:flex;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap}
+.fbtn{font-family:var(--mono);font-size:11px;font-weight:500;padding:5px 14px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;transition:all .15s}
+.fbtn.active{background:var(--text);color:#fff;border-color:var(--text)}
+.pw-list{display:flex;flex-direction:column}
+.pw-item{display:grid;grid-template-columns:52px 1fr auto;gap:1rem;align-items:start;padding:1.5rem 0;border-bottom:1px solid var(--border);transition:opacity .2s}
+.pw-item:last-child{border-bottom:none}
+.pw-item.hidden{display:none}
+.pw-num{font-family:var(--mono);font-size:26px;font-weight:400;color:var(--border);line-height:1;padding-top:2px}
+.pw-title{font-size:14px;font-weight:600;margin-bottom:5px}
+.pw-desc{font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:8px}
+.pw-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.pw-hor{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:3px;display:inline-block;font-weight:500}
+.pw-set{font-family:var(--mono);font-size:10px;padding:3px 10px;border-radius:3px;background:var(--surface2);color:var(--text3)}
+.pw-src{font-family:var(--mono);font-size:10px;color:var(--text3)}
+.h-now{background:var(--green-bg);color:var(--green)}
+.h-mid{background:var(--amber-bg);color:var(--amber)}
+.h-str{background:var(--purple-bg);color:var(--purple)}
+.pw-chk{width:24px;height:24px;border-radius:6px;border:2px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:border-color .15s,background .15s;margin-top:2px}
+.pw-chk.done{border-color:var(--green);background:var(--green)}
+.pw-chk.done::after{content:'✓';color:#fff;font-size:13px;font-weight:700}
+.pw-chk:hover{border-color:var(--green)}
+.pw-item.isdone .pw-title{text-decoration:line-through;color:var(--text3)}
+.chart-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem}
+.chart-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem}
+.chart-ttl{font-size:15px;font-weight:600}
+.stats-row{display:flex;gap:1.5rem}
+.stat{display:flex;flex-direction:column;align-items:flex-end}
+.stat-val{font-size:22px;font-weight:700;color:var(--green)}
+.stat-lbl{font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--text3)}
+.chart-box{position:relative;height:300px}
+.legend-row{display:flex;gap:1.5rem;margin-top:1rem;flex-wrap:wrap}
+.leg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
+.leg-dot{width:10px;height:10px;border-radius:50%}
+.mat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.mat-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.25rem 1.5rem;text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:8px;transition:border-color .15s,transform .15s}
+.mat-card:hover{border-color:var(--green);transform:translateY(-2px)}
+.mat-icon{width:36px;height:36px;border-radius:6px;background:var(--green-bg);display:flex;align-items:center;justify-content:center;margin-bottom:4px}
+.mat-icon svg{width:18px;height:18px;stroke:var(--green);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.mat-title{font-size:14px;font-weight:600;line-height:1.3}
+.mat-desc{font-size:12px;color:var(--text2);line-height:1.5}
+.mat-link{font-family:var(--mono);font-size:10px;color:var(--green);margin-top:auto}
+footer{padding:2.5rem 0;text-align:center}
+footer p{font-size:12px;color:var(--text3);font-family:var(--mono)}
+@media(max-width:640px){
+  nav{padding:0 1rem}.nav-links{display:none}.wrap{padding:0 1.25rem}
+  .hero{padding:3rem 0 2.5rem}.algo-flow{grid-template-columns:1fr}
+  .algo-stage+.algo-stage{border-left:none;border-top:1px solid var(--border)}
+  .ch-card{grid-template-columns:1fr}.ch-dot-wrap{flex-direction:row}.ch-lvl{writing-mode:horizontal-tb;transform:none}
+  .pw-item{grid-template-columns:36px 1fr auto}.pw-num{font-size:18px}
+}
+</style>
+</head>
+<body>
+<nav>
+  <span class="nav-brand">Picking Contínuo · Cluster NT + NE</span>
+  <ul class="nav-links">
+    <li><a href="#oque">O que é</a></li>
+    <li><a href="#algoritmo">Algoritmo</a></li>
+    <li><a href="#quiz">Quiz</a></li>
+    <li><a href="#desafios">Desafios NT</a></li>
+    <li><a href="#prework">Pré-work</a></li>
+    <li><a href="#tracker">Tracker</a></li>
+    <li><a href="#materiais">Materiais</a></li>
+  </ul>
+</nav>
+
+<div class="hero">
+  <div class="wrap">
+    <span class="eyebrow">FBM · Outbound · Cluster NT + NE</span>
+    <h1>Picking Contínuo<br><em>está chegando para NT</em></h1>
+    <p class="hero-sub">Este guia foi criado para os analistas do cluster NT + NE entenderem o projeto, o funcionamento real do algoritmo (detalhado no VSM de 27/05), e se prepararem para a implementação em operações não-totable com EKS selecionadoras.</p>
+    <div class="meta-row">
+      <div class="meta-item"><span class="meta-label">Atualizado em</span><span class="meta-value">Junho 2026</span></div>
+      <div class="meta-item"><span class="meta-label">Base</span><span class="meta-value">VSM SP15 · 27/05/2026</span></div>
+      <div class="meta-item"><span class="meta-label">Público</span><span class="meta-value">Analistas Cluster NT + NE</span></div>
+      <div class="meta-item"><span class="meta-label">Status PD para NT</span><span class="meta-value">Em desenho</span></div>
+      <div class="meta-item"><span class="meta-label">Referência totable</span><span class="meta-value">SP14, SP15, SP18, SP25, SP26</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- O QUE É -->
+<div class="sec" id="oque">
+  <div class="wrap">
+    <span class="eyebrow">Conceito</span>
+    <h2 class="sec-title">O que é o Picking Contínuo?</h2>
+    <p class="sec-sub">O Picking Contínuo substitui o modelo de wave fixa por um sistema que atribui tarefas em tempo real considerando posição do rep, ETD dos produtos e backlog disponível. O rep nunca recebe lista fechada no início do turno.</p>
+    <div class="card-grid">
+      <div class="card"><div class="card-icon">🔄</div><p class="card-title">Sem wave fixa</p><p class="card-desc">No modelo tradicional, toda a wave era otimizada de uma vez (ex: 10.000 unidades). No contínuo, a otimização acontece apenas sobre o backlog pendente, em ciclos constantes.</p></div>
+      <div class="card"><div class="card-icon">📍</div><p class="card-title">20 tarefas por vez</p><p class="card-desc">Ao bipar o primeiro endereço, o rep recebe 20 tarefas fixadas. Novas tarefas só são atribuídas quando restam ≤5 pendentes — não antes, não depois.</p></div>
+      <div class="card"><div class="card-icon">📦</div><p class="card-title">Early drop-off</p><p class="card-desc">O rep pode descarregar totes a qualquer momento quando estiverem suficientemente cheios, liberando espaço para continuar sem precisar completar um circuito fixo.</p></div>
+      <div class="card"><div class="card-icon">🚨</div><p class="card-title">Crítico bloqueia tela</p><p class="card-desc">Quando item atinge SLA crítico (≤2h), o sistema bloqueia o coletor e força drop-off imediato. Urgente (3h) só emite avisos — não trava a tela.</p></div>
+      <div class="card"><div class="card-icon">⏱️</div><p class="card-title">Pontos fixos 2h antes</p><p class="card-desc">Os endereços de picking são fixados 2h a 2h30 antes de serem executados. Após fixados, não há retroalimentação — o sistema não reposiciona pontos mesmo que surja endereço mais próximo.</p></div>
+      <div class="card"><div class="card-icon">⚡</div><p class="card-title">Resultado no totable</p><p class="card-desc">Nos 5 CADs com rollout, o principal driver de UPH foi bipes/min (r=0,92), seguido de itens/rua (r=0,72). Rotas densas e sem interrupções são a chave.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ALGORITMO -->
+<div class="sec" id="algoritmo">
+  <div class="wrap">
+    <span class="eyebrow">Como funciona de verdade · VSM 27/05/2026</span>
+    <h2 class="sec-title">Os 3 estágios do algoritmo</h2>
+    <p class="sec-sub">Detalhado no VSM com o time de PD. Cada estágio tem lógica diferente — e implicações específicas para NT.</p>
+    <div class="algo-flow">
+      <div class="algo-stage">
+        <p class="algo-num">Estágio 01</p>
+        <p class="algo-name">Backlog</p>
+        <span class="algo-tag t-bl">Otimização aqui</span>
+        <ul class="algo-list">
+          <li>Sistema olha apenas o backlog pendente — não a wave completa</li>
+          <li>Identifica endereços de estoque no layout do CAD</li>
+          <li>Fixa os pontos de picking no mapa</li>
+          <li>Ao fixar, muda status para "Por Assignar"</li>
+        </ul>
+        <div class="algo-note">⚠️ NT: densidade de endereços NT é menor — algoritmo pode fixar pontos distantes já nessa etapa</div>
+      </div>
+      <div class="algo-stage">
+        <p class="algo-num">Estágio 02</p>
+        <p class="algo-name">Por Assignar</p>
+        <span class="algo-tag t-por">Pontos fixos · 2h a 2h30</span>
+        <ul class="algo-list">
+          <li>Pontos já otimizados e imutáveis — sem reotimização</li>
+          <li>Sistema mantém backlog equivalente a 2–2,5h de capacidade</li>
+          <li>Se há mais pickers que tarefas: concorrência de rota — um "rouba" o caminho do outro</li>
+          <li>Novos pontos só são adicionados, nunca reposicionados</li>
+        </ul>
+        <div class="algo-note">⚠️ NT: ciclo NT é mais longo — 2h pode não ser margem suficiente para garantir fluxo sem gargalo</div>
+      </div>
+      <div class="algo-stage">
+        <p class="algo-num">Estágio 03</p>
+        <p class="algo-name">Assignado</p>
+        <span class="algo-tag t-ass">Rep em execução</span>
+        <ul class="algo-list">
+          <li>Rep recebe 20 tarefas ao bipar o primeiro endereço</li>
+          <li>Novas tarefas chegam apenas quando restam ≤5 pendentes</li>
+          <li>Novo ponto no caminho? Rep passa reto — já tem 20 atribuídas</li>
+          <li>Zona única: sistema empurra rep para o fundo do corredor, longe do drop-off</li>
+        </ul>
+        <div class="algo-note">⚠️ NT: EKS não pode "passar reto" com eficiência — cada desvio custa muito mais que no totable a pé</div>
+      </div>
+    </div>
+    <p style="font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:1.5rem"><strong style="color:var(--text)">Ponto crítico confirmado no VSM (00:21:46):</strong> o sistema não tem retroalimentação após fixar os pontos. Se o SKU A está fixado no endereço X mas o rep está mais próximo do endereço Y (mesmo SKU), o sistema não muda — a EKS vai até X. Para NT, esse comportamento gera deslocamentos muito maiores que no totable.</p>
+    <h3 style="font-size:17px;font-weight:600;margin-bottom:1rem">Parâmetros de crítico e urgente — dois temas separados</h3>
+    <p style="font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:1rem">Conforme esclarecido por Victor Canada Barroso no VSM (00:29:35):</p>
+    <table class="params-tbl">
+      <thead><tr><th>Status</th><th>Gatilho (totable atual)</th><th>Comportamento no sistema</th><th>Para NT — ponto de atenção</th></tr></thead>
+      <tbody>
+        <tr><td><span class="bdg bdg-r">CRÍTICO</span></td><td style="font-weight:600">≤ 2 horas para ETD</td><td>Bloqueia tela do coletor. Rep finaliza todos os críticos da rota e então o drop-off é forçado. Parâmetro configurável por site (admin outbound).</td><td>Com EKS, 2h pode ser tarde demais. Precisa ser recalibrado para o ciclo NT — histórico: começou em 90min, foi para 2h, há pressão para 1,5h em alguns CADs.</td></tr>
+        <tr><td><span class="bdg bdg-a">URGENTE</span></td><td style="font-weight:600">Entre 2h e 3h</td><td>Apenas emite aviso no coletor. Não trava tela, não altera rota. Usado como parâmetro de cálculo para injeção no "Por Assignar".</td><td>Mexer no tempo de urgente NÃO altera a rota do rep. Alterar rota depende do score do ST — tema completamente separado (Victor Canada, 00:30:47).</td></tr>
+        <tr><td><span class="bdg bdg-p">NT — A DEFINIR</span></td><td style="font-weight:600">Não definido</td><td>Processo ainda não desenhado por PD para operações com EKS.</td><td>Calibração precisa ser feita do zero considerando o ciclo real de deslocamento + manobra + coleta com EKS em estruturas NT.</td></tr>
+      </tbody>
+    </table>
+    <div class="callout"><strong>Dado do VSM (00:27:11):</strong> rep que cancela tarefa uma vez fica bloqueado por 5 minutos se tentar cancelar novamente. A nova versão retirou a autonomia do rep de abandonar tarefa livremente. Para NT com EKS parada no corredor, 5 minutos de bloqueio tem custo operacional muito maior que no totable.</div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div class="sec" id="quiz">
+  <div class="wrap">
+    <span class="eyebrow">Verificação de conhecimento</span>
+    <h2 class="sec-title">Quanto você absorveu?</h2>
+    <p class="sec-sub">Quatro perguntas baseadas no VSM de 27/05 e no material de treinamento. As respostas refletem o que foi discutido com o time de PD.</p>
+    <div class="quiz-wrap">
+      <div class="qpbar"><div class="qpfill" id="qprog" style="width:0%"></div></div>
+      <div class="qinner" id="qmain">
+        <p class="qcnt" id="qcnt">Pergunta 1 de 4</p>
+        <p class="qq" id="qq"></p>
+        <div class="qopts" id="qopts"></div>
+        <div class="qfb" id="qfb"></div>
+        <button class="qnxt" id="qnxt">Próxima pergunta →</button>
+      </div>
+      <div class="qres" id="qres">
+        <div class="qscore" id="qsc"></div>
+        <p class="qres-lbl">de 4 perguntas corretas</p>
+        <p class="qres-msg" id="qmsg"></p>
+        <button class="qrestart" onclick="startQuiz()">Refazer quiz</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DESAFIOS -->
+<div class="sec" id="desafios">
+  <div class="wrap">
+    <span class="eyebrow">Desafios específicos</span>
+    <h2 class="sec-title">Por que NT é diferente do totable?</h2>
+    <p class="sec-sub">Riscos identificados cruzando o funcionamento real do algoritmo (VSM 27/05) com as diferenças operacionais das EKS selecionadoras.</p>
+    <div class="ch-list">
+      <div class="ch-card">
+        <div class="ch-dot-wrap"><div class="ch-dot hi"></div><span class="ch-lvl">Alto</span></div>
+        <div><p class="ch-title">Sem retroalimentação: EKS faz ida e volta desnecessária</p><p class="ch-desc">O VSM confirmou: o sistema não reposiciona pontos fixados após o "Por Assignar". Se o SKU A foi fixado no endereço X mas a EKS está mais próxima do endereço Y (mesmo SKU), o sistema manda a máquina até X mesmo assim. Para picker a pé, ineficiência gerenciável. Para EKS, cada viagem extra custa 3–8 minutos de manobra.</p><span class="ch-tag t-hi">Risco alto</span><p class="ch-src">Fonte: VSM 27/05 · 00:21:46</p></div>
+      </div>
+      <div class="ch-card">
+        <div class="ch-dot-wrap"><div class="ch-dot hi"></div><span class="ch-lvl">Alto</span></div>
+        <div><p class="ch-title">Drop-off físico não mapeado para NT</p><p class="ch-desc">O VSM do SP15 identificou que o algoritmo de zona única empurra o rep para o fundo do corredor, longe do drop-off. Para NT, os produtos não cabem em totes padrão e não há ponto de drop definido nas zonas atuais. EKS carregada sem ponto de descarga = deslocamento extra + risco operacional.</p><span class="ch-tag t-hi">Risco alto</span><p class="ch-src">Fonte: VSM 27/05 · 00:13:10 + Plano de Ação SP15</p></div>
+      </div>
+      <div class="ch-card">
+        <div class="ch-dot-wrap"><div class="ch-dot hi"></div><span class="ch-lvl">Alto</span></div>
+        <div><p class="ch-title">Parâmetro de crítico (2h) incompatível com ciclo NT</p><p class="ch-desc">No totable, crítico ≤2h já gerou debate sobre redução. Para NT, o ciclo de deslocamento + manobra + coleta com EKS pode ser 20–40 min por item. Um gatilho de 2h pode ser insuficiente para garantir chegada ao drop-off a tempo. Victor Canada confirmou: é parâmetro configurável por site — precisa ser recalibrado para NT antes do piloto.</p><span class="ch-tag t-hi">Risco alto</span><p class="ch-src">Fonte: VSM 27/05 · 00:29:35 — Victor Canada Barroso</p></div>
+      </div>
+      <div class="ch-card">
+        <div class="ch-dot-wrap"><div class="ch-dot md"></div><span class="ch-lvl">Médio</span></div>
+        <div><p class="ch-title">Threshold de 5 tarefas gera paradas desnecessárias da EKS</p><p class="ch-desc">O rep só recebe novas tarefas quando tem ≤5 pendentes. Se essas 5 últimas tarefas terminam em pontos distantes do corredor mais denso, a EKS precisa percorrer grande distância até o próximo lote de 20 tarefas — gerando inatividade e deslocamento sem picking.</p><span class="ch-tag t-md">Risco médio</span><p class="ch-src">Fonte: VSM 27/05 · 00:12:06</p></div>
+      </div>
+      <div class="ch-card">
+        <div class="ch-dot-wrap"><div class="ch-dot md"></div><span class="ch-lvl">Médio</span></div>
+        <div><p class="ch-title">Concorrência de rotas: mais EKS do que tarefas disponíveis</p><p class="ch-desc">O VSM mostrou que quando há mais pickers que tarefas no "Por Assignar", o sistema gera concorrência — um rep "rouba" a rota do outro para completar as 20 tarefas. Para NT com EKS, isso pode significar duas máquinas disputando os mesmos corredores, gerando bloqueio físico e risco de acidente.</p><span class="ch-tag t-md">Risco médio</span><p class="ch-src">Fonte: VSM 27/05 · 00:15:21</p></div>
+      </div>
+      <div class="ch-card">
+        <div class="ch-dot-wrap"><div class="ch-dot md"></div><span class="ch-lvl">Médio</span></div>
+        <div><p class="ch-title">Penalidade de 5 min por cancelamento desproporcional para EKS</p><p class="ch-desc">A nova versão bloqueia o rep por 5 minutos se cancelar tarefa duas vezes. Para picker a pé, 5 minutos é razoável. Para rep NT com EKS parada carregada no meio do corredor, o bloqueio pode gerar congestionamento e impactar outros reps.</p><span class="ch-tag t-md">Risco médio</span><p class="ch-src">Fonte: VSM 27/05 · 00:27:11</p></div>
+      </div>
+      <div class="ch-card">
+        <div class="ch-dot-wrap"><div class="ch-dot lo"></div><span class="ch-lvl">Atenção</span></div>
+        <div><p class="ch-title">Zoneamento NT gera mais transições de zona</p><p class="ch-desc">Estruturas NT têm menor densidade de SKUs por corredor que o totable. O estudo de correlação mostra que transições de zona correlacionam negativamente com UPH. Combinado com a lógica de zona única do algoritmo (que já empurra o rep para o fundo da rua), o resultado é uma rota NT muito mais fragmentada que o modelo guiado atual.</p><span class="ch-tag t-lo">Atenção</span><p class="ch-src">Fonte: Estudo correlação MLB + VSM 27/05 · 00:13:10</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRE-WORK -->
+<div class="sec" id="prework">
+  <div class="wrap">
+    <span class="eyebrow">Pré-work</span>
+    <h2 class="sec-title">Plano de ação adaptado para NT</h2>
+    <p class="sec-sub">Baseado no plano de ação do VSM SP15 (28 ações totable), adaptado para a realidade NT com EKS. Filtre por setor ou horizonte. Marque cada item conforme o time avançar.</p>
+    <div class="pw-filters">
+      <button class="fbtn active" onclick="filterPW('all',this)">Todos</button>
+      <button class="fbtn" onclick="filterPW('OPS',this)">OPS</button>
+      <button class="fbtn" onclick="filterPW('PD',this)">PD</button>
+      <button class="fbtn" onclick="filterPW('Flow',this)">Flow</button>
+      <button class="fbtn" onclick="filterPW('imediato',this)">Imediato</button>
+      <button class="fbtn" onclick="filterPW('medio',this)">Médio prazo</button>
+      <button class="fbtn" onclick="filterPW('estrutural',this)">Estrutural</button>
+    </div>
+    <div class="pw-list" id="pwlist">
+      <div class="pw-item" data-setor="OPS" data-horizon="imediato" data-idx="0">
+        <span class="pw-num">01</span>
+        <div>
+          <p class="pw-title">Mapear pontos físicos de drop-off para NT por zona</p>
+          <p class="pw-desc">SP15 identificou que a zona única empurra o rep para o fundo do corredor, longe do drop-off. Para NT, mapear com operação e Flow quais pontos físicos são viáveis para drop NT — incluindo buffer dedicado para itens críticos, equivalente ao que existe em SP18 e SP14.</p>
+          <div class="pw-meta"><span class="pw-hor h-now">Imediato</span><span class="pw-set">OPS</span><span class="pw-src">↗ SP15 VSM · Plano de Ação</span></div>
+        </div>
+        <div class="pw-chk" onclick="togglePW(this)"></div>
+      </div>
+      <div class="pw-item" data-setor="PD" data-horizon="imediato" data-idx="1">
+        <span class="pw-num">02</span>
+        <div>
+          <p class="pw-title">Solicitar calibração do parâmetro de crítico para o ciclo NT</p>
+          <p class="pw-desc">Victor Canada confirmou no VSM: parâmetro de crítico é configurável por site (admin outbound). Para NT, 2h pode ser insuficiente dado o ciclo mais longo de EKS. Solicitar ao PD definição do tempo adequado — sugestão: começar com 3h e calibrar com dados reais do piloto.</p>
+          <div class="pw-meta"><span class="pw-hor h-now">Imediato</span><span class="pw-set">PD</span><span class="pw-src">↗ VSM 27/05 · 00:29:35</span></div>
+        </div>
+        <div class="pw-chk" onclick="togglePW(this)"></div>
+      </div>
+      <div class="pw-item" data-setor="OPS" data-horizon="imediato" data-idx="2">
+        <span class="pw-num">03</span>
+        <div>
+          <p class="pw-title">Criar rotina de monitoramento de abandono de tarefa NT</p>
+          <p class="pw-desc">SP15 identificou abandono como principal KPI de utilização. Para NT, o rep de EKS tem menos flexibilidade para sair da rota — mas pode usar o cancelamento (com penalidade de 5 min na nova versão). Estruturar acompanhamento turno a turno desde o dia 1 do piloto com feedback ativo dos reps.</p>
+          <div class="pw-meta"><span class="pw-hor h-now">Imediato</span><span class="pw-set">OPS</span><span class="pw-src">↗ SP15 Plano de Ação · Item 1</span></div>
+        </div>
+        <div class="pw-chk" onclick="togglePW(this)"></div>
+      </div>
+      <div class="pw-item" data-setor="PD" data-horizon="imediato" data-idx="3">
+        <span class="pw-num">04</span>
+        <div>
+          <p class="pw-title">Incluir NT no monitoramento de itens críticos vs urgentes (Datadog)</p>
+          <p class="pw-desc">SP15 identificou falta de visibilidade do status das tarefas no LMS como problema central. Para NT, garantir que o Datadog contemple NT desde o início — com visibilidade da pergunta-chave: itens críticos NT não estão sendo pickados por falta de HC ou por problema de rota/algoritmo?</p>
+          <div class="pw-meta"><span class="pw-hor h-now">Imediato</span><span class="pw-set">PD</span><span class="pw-src">↗ SP15 Plano de Ação · Item 3</span></div>
+        </div>
+        <div class="pw-chk" onclick="togglePW(this)"></div>
+      </div>
+      <div class="pw-item" data-setor="PD" data-horizon="medio" data-idx="4">
+        <span class="pw-num">05</span>
+        <div>
+          <p class="pw-title">Revisar zoneamento NT com foco em densidade de rota</p>
+          <p class="pw-desc">SP15 incluiu "Estudo de configuração de zonas (horizontal vs vertical)" e "Revisão do zoneamento do CAD" como ações formais. Para NT, usar KPIs do estudo de correlação (itens/rua, itens/stint, transições de zona) para diagnosticar o zoneamento atual. Objetivo: maximizar itens/stint antes de habilitar a rota dinâmica.</p>
+          <div class="pw-meta"><span class="pw-hor h-mid">Médio prazo</span><span class="pw-set">PD</span><span class="pw-src">↗ SP15 Plano de Ação · Item 17</span></div>
+        </div>
+        <div class="pw-chk" onclick="togglePW(this)"></div>
+      </div>
+      <div class="pw-item" data-setor="PD" data-horizon="medio" data-idx="5">
+        <span class="pw-num">06</span>
+        <div>
+          <p class="pw-title">Avaliar redução das tarefas congeladas (20 → testar com menos)</p>
+          <p class="pw-desc">SP15 já incluiu formalmente: "Avaliar possibilidade de teste de redução de tarefas congeladas" (item 23 do plano). Para NT, 20 tarefas fixadas 2h antes pode ser excessivo dado o ciclo mais longo — reduzir pode diminuir o problema de "vai e volta" da EKS. Solicitar estudo específico ao PD para NT.</p>
+          <div class="pw-meta"><span class="pw-hor h-mid">Médio prazo</span><span class="pw-set">PD</span><span class="pw-src">↗ SP15 Plano de Ação · Item 23</span></div>
+        </div>
+        <div class="pw-chk" onclick="togglePW(this)"></div>
+      </div>
+      <div class="pw-item" data-setor="Flow" data-horizon="medio" data-idx="6">
+        <span class="pw-num">07</span>
+        <div>
+          <p class="pw-title">Calibrar produtividade NT no cadastro do Flow (hora a hora)</p>
+          <p class="pw-desc">SP15 identificou "variação de produtividade por hora — algoritmo não entende variação de turnos e refeições". Para NT, o Flow precisa cadastrar produtividade real por hora específica das EKS — muito diferente do totable — para que o "Por Assignar" mantenha volume de backlog adequado e evite concorrência de rotas.</p>
+          <div class="pw-meta"><span class="pw-hor h-mid">Médio prazo</span><span class="pw-set">Flow</span><span class="pw-src">↗ SP15 Plano de Ação · Item 18</span></div>
+        </div>
+        <div class="pw-chk" onclick="togglePW(this)"></div>
+      </div>
+      <div class="pw-item" data-setor="PD" data-horizon="estrutural" data-idx="7">
+        <span class="pw-num">08</span>
+        <div>
+          <p class="pw-title">Antecipar requisito de visibilidade de EKS no relatório de Picking</p>
+          <p class="pw-desc">O relatório atual mostra localização e próximo endereço do rep. Para NT, precisa incluir status e posição da EKS — o TL precisa identificar bloqueios de corredor e redistribuir recursos. Requisito que deve ir ao PD agora, não durante o piloto.</p>
+          <div class="pw-meta"><span class="pw-hor h-str">Estrutural</span><span class="pw-set">PD</span><span class="pw-src">↗ SP15 VSM + Estudo de correlação</span></div>
+        </div>
+        <div class="pw-chk" onclick="togglePW(this)"></div>
+      </div>
+      <div class="pw-item" data-setor="OPS" data-horizon="estrutural" data-idx="8">
+        <span class="pw-num">09</span>
+        <div>
+          <p class="pw-title">Definir KPIs de go/no-go e critério de rollback para piloto NT</p>
+          <p class="pw-desc">SP15 estabilizou primeiro antes de expandir. Para NT: definir TPH mínimo aceitável, % de itens críticos atendidos no prazo e taxa de abandono de rota que define rollback. Piloto deve começar em uma única zona/corredor antes de expansão para o CAD inteiro.</p>
+          <div class="pw-meta"><span class="pw-hor h-str">Estrutural</span><span class="pw-set">OPS</span><span class="pw-src">↗ SP15 VSM · Lógica de estabilização</span></div>
+        </div>
+        <div class="pw-chk" onclick="togglePW(this)"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TRACKER -->
+<div class="sec" id="tracker">
+  <div class="wrap">
+    <span class="eyebrow">Acompanhamento</span>
+    <h2 class="sec-title">Progresso do pré-work</h2>
+    <p class="sec-sub">Reflete os checkboxes marcados acima. Atualiza em tempo real conforme o time avança.</p>
+    <div class="chart-wrap">
+      <div class="chart-hdr">
+        <p class="chart-ttl">Status dos 9 itens de pré-work</p>
+        <div class="stats-row">
+          <div class="stat"><span class="stat-val" id="sdone">0</span><span class="stat-lbl">Avaliados</span></div>
+          <div class="stat"><span class="stat-val" id="spct" style="color:var(--text3)">0%</span><span class="stat-lbl">Concluído</span></div>
+        </div>
+      </div>
+      <div class="chart-box"><canvas id="pwChart"></canvas></div>
+      <div class="legend-row">
+        <div class="leg"><div class="leg-dot" style="background:var(--green)"></div>Avaliado</div>
+        <div class="leg"><div class="leg-dot" style="background:var(--border)"></div>Pendente</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MATERIAIS -->
+<div class="sec" id="materiais">
+  <div class="wrap">
+    <span class="eyebrow">Referências</span>
+    <h2 class="sec-title">Materiais do projeto</h2>
+    <p class="sec-sub">Documentação oficial para consulta e aprofundamento.</p>
+    <div class="mat-grid">
+      <a class="mat-card" href="https://docs.google.com/presentation/d/1NbK69dNTDuGLVcoptnmzcEG5IOKRIkGMdGO5wRB0txM/edit" target="_blank" rel="noopener">
+        <div class="mat-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+        <p class="mat-title">Treinamento — Picking Contínuo (PT/ES)</p>
+        <p class="mat-desc">Material e-learning para REPs, PSs, TLs e Supervisores. Processo completo, early drop-off e casos de uso. Lucas Ramos · Mar 2026</p>
+        <span class="mat-link">Abrir apresentação ↗</span>
+      </a>
+      <a class="mat-card" href="https://docs.google.com/presentation/d/1EQj787ZbnlXrNL7ajnciJ_5gemJpNoU0WDK49qCZbfs/edit" target="_blank" rel="noopener">
+        <div class="mat-icon"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></div>
+        <p class="mat-title">Estudo de Correlação e Bipes — MLB</p>
+        <p class="mat-desc">Análise pós-rollout em SP14, SP15, SP18, SP25 e SP26. Heatmap de correlações, KPIs de rota e plano de ação por CAD. Mai 2026</p>
+        <span class="mat-link">Abrir estudo ↗</span>
+      </a>
+      <a class="mat-card" href="https://docs.google.com/document/d/1UyIfV-D9u3x6UHLR5JxmLujsYoDk5wXcY740R_plZ5E/edit" target="_blank" rel="noopener">
+        <div class="mat-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+        <p class="mat-title">VSM Picking Contínuo — Ata + Transcrição</p>
+        <p class="mat-desc">Reunião de 27/05/2026. Análise técnica do algoritmo com PD (Victor Canada), parâmetros de crítico/urgente e planejamento do Gemba.</p>
+        <span class="mat-link">Abrir documento ↗</span>
+      </a>
+      <a class="mat-card" href="https://docs.google.com/spreadsheets/d/1PxJlDzP4fncykx_RrTYdXCfz976vy3-WVt2UUOEvELI/edit" target="_blank" rel="noopener">
+        <div class="mat-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg></div>
+        <p class="mat-title">Plano de Ação VSM SP15</p>
+        <p class="mat-desc">28 ações mapeadas no VSM do SP15 (totable). Base de referência para adaptação NT. Responsáveis: Matheus Rodrigues Araujo, Victor Canada Barroso.</p>
+        <span class="mat-link">Abrir planilha ↗</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<footer><div class="wrap"><p>Picking Contínuo NT · Cluster NT + NE · Junho 2026 · Base: VSM SP15 27/05/2026</p></div></footer>
+
+<script>
+// QUIZ
+const Qs=[
+  {q:"No algoritmo do Picking Contínuo, em qual estágio a otimização de rota acontece de fato?",opts:["No Assignado, quando o rep recebe as 20 tarefas","No Por Assignar, quando os pontos são fixados","No Backlog, antes de fixar os pontos no layout","Em tempo real, continuamente durante a execução"],c:2,ok:"Correto! A otimização acontece no Backlog — o sistema olha as tarefas pendentes, fixa os pontos no layout e muda para 'Por Assignar'. Depois disso os pontos são imutáveis.",nok:"Errado. A otimização acontece no Backlog. Após virar 'Por Assignar', os pontos estão fixos e não sofrem reotimização — mesmo que surjam endereços mais eficientes."},
+  {q:"Qual a diferença real entre Crítico e Urgente no sistema, conforme discutido com Victor Canada no VSM?",opts:["Ambos bloqueiam a tela do coletor, mas Crítico tem prioridade maior","Crítico bloqueia a tela e força drop-off; Urgente só emite aviso e é parâmetro de cálculo","Urgente bloqueia a rota; Crítico apenas notifica o TL no painel","Ambos alteram a rota do rep automaticamente via score do ST"],c:1,ok:"Correto! Victor Canada foi claro: Crítico (≤2h) bloqueia o coletor e força drop-off. Urgente apenas emite popup e serve como referência de cálculo para injeção no 'Por Assignar'. Mexer no tempo de urgente NÃO altera a rota do rep.",nok:"Errado. Victor Canada separou os temas no VSM: Crítico bloqueia e força drop-off. Urgente só emite aviso e é parâmetro de cálculo — não altera rota. A rota depende do score do ST, não do tempo de urgente."},
+  {q:"Por que o rep 'vai e volta' nos corredores no Picking Contínuo, mesmo parecendo ineficiente?",opts:["Porque o sistema prioriza ergonomia e evita longas caminhadas em sequência","Porque o TL pode reatribuir tarefas manualmente durante a rota","Porque os pontos são fixados 2h antes e o sistema não reposiciona mesmo que haja endereço do mesmo SKU mais próximo","Porque o algoritmo respeita o FEFO e força a sequência de validade"],c:2,ok:"Correto! O VSM explicou: o sistema não tem retroalimentação. Se o SKU A está fixado no endereço X, mas o rep está perto do endereço Y (mesmo SKU), ele vai até X mesmo assim. Não há refresh de posição — para NT com EKS, isso é especialmente custoso.",nok:"Errado. O motivo é técnico: os pontos são fixados 2h antes e o sistema não os reposiciona. Se o endereço X foi fixado para o SKU A, o rep vai até lá mesmo que haja um ponto mais próximo disponível."},
+  {q:"O que acontece quando há mais reps ativos do que tarefas disponíveis no estágio 'Por Assignar'?",opts:["Sistema distribui uniformemente e reps excedentes entram em modo de espera","TL recebe alerta e deve alocar manualmente os reps excedentes","Os reps concorrem pelas mesmas rotas — um 'rouba' o caminho do outro para completar as 20 tarefas","Sistema gera automaticamente tarefas de reabastecimento para os reps excedentes"],c:2,ok:"Correto! O VSM mostrou isso: com 7 reps mas tarefas para 3, o sistema precisa atribuir 20 pontos para cada — e gera concorrência de rota. Para NT com EKS, isso pode resultar em duas máquinas no mesmo corredor.",nok:"Errado. O VSM foi claro: quando há mais reps que tarefas, o sistema gera concorrência — um rep 'rouba' a rota do outro para completar as 20 tarefas obrigatórias. Para NT com EKS disputando corredores, isso é perigoso."}
+];
+let cur=0,sc=0,ans=false;
+function startQuiz(){cur=0;sc=0;ans=false;document.getElementById('qmain').style.display='block';document.getElementById('qres').style.display='none';renderQ()}
+function renderQ(){
+  const q=Qs[cur];ans=false;
+  document.getElementById('qcnt').textContent=`Pergunta ${cur+1} de ${Qs.length}`;
+  document.getElementById('qq').textContent=q.q;
+  document.getElementById('qprog').style.width=`${(cur/Qs.length)*100}%`;
+  const fb=document.getElementById('qfb');fb.className='qfb';fb.textContent='';
+  document.getElementById('qnxt').style.display='none';
+  const opts=document.getElementById('qopts');opts.innerHTML='';
+  q.opts.forEach((o,i)=>{const b=document.createElement('button');b.className='qopt';b.textContent=o;b.onclick=()=>pick(i);opts.appendChild(b)});
+}
+function pick(i){
+  if(ans)return;ans=true;
+  const q=Qs[cur];
+  const opts=document.getElementById('qopts').querySelectorAll('.qopt');
+  const fb=document.getElementById('qfb');
+  opts.forEach((b,j)=>{b.disabled=true;if(j===q.c)b.classList.add('correct')});
+  if(i===q.c){sc++;opts[i].classList.add('correct');fb.textContent='✓ '+q.ok;fb.className='qfb show ok'}
+  else{opts[i].classList.add('wrong');fb.textContent='✗ '+q.nok;fb.className='qfb show nok'}
+  const nxt=document.getElementById('qnxt');nxt.style.display='block';
+  nxt.textContent=cur<Qs.length-1?'Próxima pergunta →':'Ver resultado →';
+}
+document.getElementById('qnxt').onclick=()=>{cur++;if(cur<Qs.length)renderQ();else showRes()};
+function showRes(){
+  document.getElementById('qprog').style.width='100%';
+  document.getElementById('qmain').style.display='none';
+  document.getElementById('qres').style.display='block';
+  document.getElementById('qsc').textContent=`${sc}/4`;
+  const msgs=['Hora de reler a seção de algoritmo — os detalhes do VSM são fundamentais para entender os riscos NT.','Boa base! Revise as questões que errou antes de seguir para o pré-work.','Muito bem! Você domina o funcionamento. Siga para os desafios NT e o tracker.','Excelente! Você pode liderar as discussões de antecipação com o time de PD.'];
+  document.getElementById('qmsg').textContent=msgs[sc];
+}
+startQuiz();
+
+// FILTER
+function filterPW(f,btn){
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.pw-item').forEach(item=>{
+    if(f==='all'){item.classList.remove('hidden');return}
+    const ok=item.dataset.setor===f||item.dataset.horizon===f;
+    item.classList.toggle('hidden',!ok);
+  });
+}
+
+// TRACKER
+const TOTAL=9;
+const lbls=['01 Drop-off NT','02 Crítico NT','03 Abandono','04 Datadog','05 Zoneamento','06 20 tarefas','07 Flow produt.','08 Visib. EKS','09 Go/no-go'];
+const hors=['Imediato','Imediato','Imediato','Imediato','Médio prazo','Médio prazo','Médio prazo','Estrutural','Estrutural'];
+let chk=new Array(TOTAL).fill(false);
+const ctx=document.getElementById('pwChart').getContext('2d');
+const pwChart=new Chart(ctx,{
+  type:'bar',
+  data:{labels:lbls,datasets:[{data:new Array(TOTAL).fill(1),backgroundColor:chk.map(v=>v?'#1A6B3A':'#E2DED4'),borderRadius:6,borderSkipped:false}]},
+  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${chk[ctx.dataIndex]?'✓ Avaliado':'Pendente'} · ${hors[ctx.dataIndex]}`}}},
+    scales:{x:{display:false,max:1.2},y:{ticks:{font:{family:"'Inter',sans-serif",size:12},color:'#5C5A55'},grid:{display:false}}}
+  }
+});
+function togglePW(el){
+  const item=el.closest('.pw-item');
+  const i=parseInt(item.dataset.idx);
+  chk[i]=!chk[i];
+  el.classList.toggle('done',chk[i]);
+  item.classList.toggle('isdone',chk[i]);
+  const done=chk.filter(Boolean).length;
+  document.getElementById('sdone').textContent=done;
+  const pct=Math.round((done/TOTAL)*100);
+  document.getElementById('spct').textContent=pct+'%';
+  document.getElementById('spct').style.color=done===TOTAL?'var(--green)':'var(--text3)';
+  pwChart.data.datasets[0].backgroundColor=chk.map(v=>v?'#1A6B3A':'#E2DED4');
+  pwChart.update();
+}
+</script>
+</body>
+</html>
